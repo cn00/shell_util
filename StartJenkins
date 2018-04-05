@@ -1,0 +1,17 @@
+#!/bin/sh
+
+## start jenkins
+function StartJenkins()
+{
+    echo "start jenkins ..."
+    mkdir -p ~/jenkins
+    pushd ~/jenkins
+    killN jenkins > /dev/null
+    nohup java -jar jenkins.war > nohup.jenkins 2>&1 &
+    popd
+    echo "start jenkins end $?\n"
+}
+
+########## main ########## 
+
+StartJenkins

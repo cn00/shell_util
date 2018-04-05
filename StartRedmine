@@ -1,0 +1,18 @@
+#!/bin/sh
+
+## start redmine
+function StartRedmine()
+{
+    echo "start redmine_2233 ..."
+    if [[ "$(docker container ls -aqf name=redmine_2233)x" = "x" ]];then
+        docker run -d -p 3000:3000 --restart unless-stopped --name "redmine_2233" -e MYSQL_ROOT_PASSWORD="pass" --link mysql_redmine:mysql redmine
+    elif [[ "$(docker ps -qf name=redmine_2233)x" = "x" ]];then
+        docker start "redmine_2233"
+    fi
+    echo "start redmine_2233 done"
+}
+
+
+########## main ########## 
+
+StartRedmine

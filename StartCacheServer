@@ -1,0 +1,17 @@
+#!/bin/sh
+
+
+## start CacheServer
+function StartCacheServer()
+{
+    echo "start CacheServer ..."
+    pushd ~/.jenkins/workspace/CacheServer
+    killN node
+    nohup ./RunOSX.sh 2>&1  &
+    popd 
+    echo "start CacheServer done"
+}
+
+########## main ########## 
+
+StartCacheServer

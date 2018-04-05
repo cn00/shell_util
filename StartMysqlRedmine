@@ -1,0 +1,18 @@
+#!/bin/sh
+
+
+## start mysql server
+function StartMysql()
+{
+    echo "start mysql_redmine2233 server ..."
+    if [[ "$(docker container ls -aqf name=mysql_2233)x" = "x" ]];then
+        docker run -d -p 3306:3306 --restart unless-stopped --name mysql_2233 -e MYSQL_ROOT_PASSWORD="pass"  -e MYSQL_DATABASE=redmine mysql
+    elif [[ "$(docker ps -qf name=mysql)x" = "x" ]];then
+        docker start "mysql_2233"
+    fi
+    echo "start mysql_redmine2233 done"
+}
+
+########## main ########## 
+
+StartMysql

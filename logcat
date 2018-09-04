@@ -1,0 +1,5 @@
+#!/bin/sh
+
+bundleid=$1
+
+adb logcat --pid $(adb shell ps |fgrep "${bundleid}"| awk '{print $2}')

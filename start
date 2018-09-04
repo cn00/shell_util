@@ -1,0 +1,38 @@
+#!/bin/sh
+
+basedir="$(cd `dirname $0`;pwd)"
+
+## start jenkins
+StartJenkins="${basedir}/StartJenkins"
+
+## start http:80
+StartHttp80="${basedir}/StartHttp80"
+
+## start CacheServer
+StartCacheServer="${basedir}/StartCacheServer"
+
+## start mysql server
+StartMysql="${basedir}/StartMysql"
+
+## start redmine
+StartRedmine="${basedir}/StartRedmine"
+
+## start phpmyadmin
+StartPhpMyAdmin="${basedir}/StartPhpMyAdmin"
+
+########## main ########## 
+
+main()
+{
+    ${StartJenkins}
+    ${StartHttp80}
+
+    # docker server
+    # sleep 10
+    # ${StartCacheServer}
+    # ${StartMysql}
+    # ${StartRedmine}
+    # ${StartPhpMyAdmin}
+}
+main
+

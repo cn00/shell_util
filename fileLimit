@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# need run with sudo
+
+## [change macosx 10.12+ limits](https://superuser.com/questions/433746/is-there-a-fix-for-the-too-many-open-files-in-system-error-on-os-x-10-7-1)
+
+## 1. Create a file at /Library/LaunchDaemons/limit.maxfiles.plist and paste the following in (feel free to change the two numbers (which are the soft and hard limits, respectively):
+
+echo '<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"  
+        "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">  
+  <dict>
+    <key>Label</key>
+    <string>limit.maxfiles</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>launchctl</string>
+      <string>limit</string>
+      <string>maxfiles</string>
+      <string>64000</string>
+      <string>524288</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>ServiceIPC</key>
+    <false/>
+  </dict>
+</plist>' | sudo tee /Library/LaunchDaemons/limit.maxfiles.plist
+
+## 2. Change the owner of your new file:
+sudo chown root:wheel /Library/LaunchDaemons/limit.maxfiles.plist
+
+## 3. Load these new settings:
+sudo launchctl load -w /Library/LaunchDaemons/limit.maxfiles.plist
+
+## 4. Finally, check that the limits are correct:
+launchctl limit maxfiles

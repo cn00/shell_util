@@ -1,0 +1,143 @@
+#!/usr/bin/env csharp -s
+
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections;
+
+using System.Security.Cryptography;
+
+using System.Collections.Generic;
+using System.Text;
+
+public class T
+{
+    const string RsaPrivPath = "Assets/StreamingAssets/Rsa/rsa"; //for decode, go with apk/ipa
+    const string RsaPubPath = "Assets/Editor/Rsa/rsa.pub"; //foe encode, store in a safe local place
+
+    public static void rsaTest(string data)
+    {
+        InitPrivKey();
+        InitPubKey();
+        var encoded = Encode(Encoding.UTF8.GetBytes(data));
+        Console.WriteLine("encoded: [{0}]", encoded);
+        var decoded = Decode(encoded);
+        Console.WriteLine("decoded: [{0}]", decoded);
+    }
+
+    public static void genKey()
+    {
+        var csp = new DSACryptoServiceProvider(2048);
+        var privKey = csp.ExportParameters(true);
+        var pubKey = csp.ExportParameters(false);
+        string pubKeyString;
+        {
+            var sw = new System.IO.StringWriter();
+            var xs = new System.Xml.Serialization.XmlSerializer(typeof(DSAParameters));
+            xs.Serialize(sw, pubKey);
+            pubKeyString = sw.ToString();
+            File.WriteAllText(RsaPubPath, pubKeyString);
+
+            Console.WriteLine("pub: [{0}]", pubKeyString);
+        }
+        string privKeyString;
+        {
+            var sw = new System.IO.StringWriter();
+            var xs = new System.Xml.Serialization.XmlSerializer(typeof(DSAParameters));
+            xs.Serialize(sw, privKey);
+            privKeyString = sw.ToString();
+            File.WriteAllText(RsaPrivPath, privKeyString);
+
+            Console.WriteLine("priv: [{0}]", privKeyString);
+        }
+
+    }
+
+    public static void genKey2()
+    {
+        var csp = new DSACryptoServiceProvider(2048);
+        var privKey = csp.ExportParameters(true);
+
+        var pubKey = csp.ExportCspBlob(false);
+        var privKeyCsp = csp.ExportCspBlob(true);
+
+        // string pubKeyString;
+        {
+            // var sw = new System.IO.StringWriter();
+            // var xs = new System.Xml.Serialization.XmlSerializer(typeof(DSAParameters));
+            // xs.Serialize(sw, pubKey);
+            // pubKeyString = sw.ToString();
+            File.WriteAllText(RsaPubPath, System.Convert.ToBase64String(pubKey));
+            File.WriteAllText(RsaPrivPath + ".csp", System.Convert.ToBase64String(privKeyCsp));
+
+            System.Console.WriteLine("pub: [{0}]", pubKey);
+        }
+        string privKeyString;
+        {
+            var sw = new System.IO.StringWriter();
+            var xs = new System.Xml.Serialization.XmlSerializer(typeof(DSAParameters));
+            xs.Serialize(sw, privKey);
+            privKeyString = sw.ToString();
+            File.WriteAllText(RsaPrivPath, privKeyString);
+
+            System.Console.WriteLine("priv: [{0}]", privKeyString);
+        }
+
+    }
+
+    public static DSAParameters PubKey;
+    public static DSAParameters PrivKey;
+
+    public static void InitPrivKey()
+    {
+        var xs = new System.Xml.Serialization.XmlSerializer(typeof(DSAParameters));
+        var sr = new System.IO.StringReader(File.ReadAllText(RsaPrivPath));
+        PrivKey = (DSAParameters)xs.Deserialize(sr);
+    }
+
+    public static void InitPubKey()
+    {
+        var xs = new System.Xml.Serialization.XmlSerializer(typeof(DSAParameters));
+        var sr = new System.IO.StringReader(File.ReadAllText(RsaPubPath));
+        PubKey = (DSAParameters)xs.Deserialize(sr);
+    }
+
+
+    // init pubKey before encode
+    public static void Encode(string inPath, string outPath)
+    {
+        var bytes = Encode(File.ReadAllBytes(inPath));
+        File.WriteAllBytes(outPath, bytes);
+    }
+
+    public static byte[] Encode(byte[] plainData)
+    {
+        // var csp = new DSACryptoServiceProvider();
+        // csp.ImportParameters(PubKey);
+
+        var csp = new DSAPrivateKeyCrypto(PrivKey);
+
+        var bytesCypherBytes = csp.Encrypt(plainData);
+        return bytesCypherBytes;
+    }
+
+    // init privKey before decode
+    public static void Decode(string inPath, string outPath)
+    {
+        var bytes = Decode(File.ReadAllBytes(inPath));
+        File.WriteAllBytes(outPath, bytes);
+    }
+
+    public static byte[] Decode(byte[] cipherDate)
+    {
+        // var csp = new DSACryptoServiceProvider();
+        var csp = new DSAPrivateKeyCrypto(PubKey);
+        // csp.ImportParameters(PrivKey);
+
+        var plainData = csp.Decrypt(cipherDate);
+        return plainData;
+    }
+}
+
+// T.genKey();
+T.rsaTest(Args[0].ToString());

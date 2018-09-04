@@ -1,0 +1,9 @@
+# !/bin/sh
+
+echo "kill:"
+ps -A|\grep TeamViewer | sed /grep/d | awk '{print $1}' | tee /dev/stdout | xargs -I% sudo kill -9 %
+#ps -A|\grep TeamViewer | sed /grep/d | awk '{print $1}' 
+#ps -A|\grep TeamViewer | sed /grep/d | awk '{print $1}'  | xargs -I% sudo kill -9 %
+
+echo "new:"
+ps -A|\grep TeamViewer | sed /grep/d | awk '{print $1}' 

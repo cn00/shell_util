@@ -1,0 +1,18 @@
+#!/bin/sh
+
+## start redmine
+function StartTF()
+{
+    echo "start tf ..."
+    if [[ "$(docker container ls -aqf name=tf)x" = "x" ]];then
+        docker run -d -p 3322:22 -p 8888:8888 -v ${HOME}/notebook:/notebooks/share --restart unless-stopped --name "centos-tf" coolnavy/tf:py3
+    elif [[ "$(docker ps -qf name=tf)x" = "x" ]];then
+        docker start "tf"
+    fi
+    echo "start tf done"
+}
+
+
+########## main ########## 
+
+StartTF

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+## start redmine
+function StartRedmine()
+{
+    echo "start notebook ..."
+    if [[ "$(docker container ls -aqf name=notebook)x" = "x" ]];then
+        docker run -d -p 8888:8888 -v ${HOME}/notebook:/home/jovyan/work --restart unless-stopped --name "notebook" -e GRANT_SUDO=yes jupyter/tensorflow-notebook
+    elif [[ "$(docker ps -qf name=notebook)x" = "x" ]];then
+        docker start "notebook"
+    fi
+    echo "start notebook done"
+}
+
+
+########## main ########## 
+
+StartRedmine

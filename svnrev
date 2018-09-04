@@ -1,0 +1,7 @@
+# !/bin/sh
+
+set -ex
+
+type=$1
+echo "type=${type}"
+svn st -q|\grep -e "${type}$" | awk '{print $2}' | xargs -I % svn revert %

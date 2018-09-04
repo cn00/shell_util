@@ -6,7 +6,10 @@ function StartPhpMyAdmin()
 {
     echo "start phpmyadmin_2233 ..."
     if [[ "$(docker container ls -aqf name=phpmyadmin_2233)x" = "x" ]];then
-        docker run -d -p 8000:80 --restart unless-stopped --name "phpmyadmin_2233" --link mysql_redmine:db phpmyadmin/phpmyadmin
+        docker run -d -p 8000:80 \
+            --restart unless-stopped \
+            --name "phpmyadmin_2233" \
+            --link mysql_2233:db phpmyadmin/phpmyadmin
     elif [[ "$(docker ps -qf name=phpmyadmin_2233)x" = "x" ]];then
         docker start "phpmyadmin_2233"
     fi

@@ -1,4 +1,4 @@
-#!/usr/bin/env csharp -s
+// #!/usr/bin/env csharp -s
 
 using System;
 using System.IO;
@@ -12,6 +12,90 @@ using System.Text;
 
 public class T
 {
+    /* 
+    功能：用指定的私钥(n,d)加密指定字符串source 
+    */
+    private string EncryptString(string source, BigInteger d, BigInteger n) 
+    {
+        int len = source.Length; 
+        int len1 = 0; 
+        int blockLen = 0; 
+        if ((len % 128) == 0) 
+        len1 = len / 128; 
+        else
+        len1 = len / 128 + 1; 
+        string block = ""; 
+        string temp = ""; 
+        for (int i = 0; i < len1; i++) 
+        { 
+            if (len >= 128) 
+            blockLen = 128; 
+            else
+            blockLen = len; 
+            block = source.Substring(i * 128, blockLen); 
+            byte[] oText = System.Text.Encoding.Default.GetBytes(block); 
+            BigInteger biText = new BigInteger(oText); 
+            BigInteger biEnText = biText.modPow(d, n); 
+            string temp1 = biEnText.ToHexString(); 
+            temp += temp1; 
+            len -= blockLen; 
+        } 
+        return temp; 
+    } 
+    /* 
+    功能：用指定的公钥(n,e)解密指定字符串source 
+    */
+    private string DecryptString(string source, BigInteger e, BigInteger n) 
+    {
+        int len = source.Length; 
+        int len1 = 0; 
+        int blockLen = 0; 
+        if ((len % 256) == 0) 
+        len1 = len / 256; 
+        else
+        len1 = len / 256 + 1; 
+        string block = ""; 
+        string temp = ""; 
+        for (int i = 0; i < len1; i++) 
+        { 
+            if (len >= 256) 
+            blockLen = 256; 
+            else
+            blockLen = len; 
+            block = source.Substring(i * 256, blockLen); 
+            BigInteger biText = new BigInteger(block, 16); 
+            BigInteger biEnText = biText.modPow(e, n); 
+            string temp1 = System.Text.Encoding.Default.GetString(biEnText.getBytes()); 
+            temp += temp1; 
+            len -= blockLen; 
+        }
+        return temp; 
+    }
+    /* 
+    加密过程,其中d、n是RSACryptoServiceProvider生成的D、Modulus 
+    */
+    private string EncryptProcess(string source, string d, string n) 
+    { 
+        byte[] N = Convert.FromBase64String(n); 
+        byte[] D = Convert.FromBase64String(d); 
+        BigInteger biN = new BigInteger(N); 
+        BigInteger biD = new BigInteger(D); 
+        return EncryptString(source, biD, biN); 
+    } 
+
+    /* 
+    解密过程,其中e、n是RSACryptoServiceProvider生成的Exponent、Modulus 
+    */
+    private string DecryptProcess(string source, string e, string n) 
+    { 
+        byte[] N = Convert.FromBase64String(n); 
+        byte[] E = Convert.FromBase64String(e); 
+        BigInteger biN = new BigInteger(N); 
+        BigInteger biE = new BigInteger(E); 
+        return DecryptString(source, biE, biN); 
+    }
+
+
     const string RsaPrivPath = "Assets/StreamingAssets/Rsa/rsa"; //for decode, go with apk/ipa
     const string RsaPubPath = "Assets/Editor/Rsa/rsa.pub"; //foe encode, store in a safe local place
 
@@ -112,10 +196,10 @@ public class T
 
     public static byte[] Encode(byte[] plainData)
     {
-        // var csp = new DSACryptoServiceProvider();
-        // csp.ImportParameters(PubKey);
+        var csp = new DSACryptoServiceProvider();
+        csp.ImportParameters(PubKey);
 
-        var csp = new DSAPrivateKeyCrypto(PrivKey);
+        // var csp = new DSAPrivateKeyCrypto(PrivKey);
 
         var bytesCypherBytes = csp.Encrypt(plainData);
         return bytesCypherBytes;
@@ -130,9 +214,9 @@ public class T
 
     public static byte[] Decode(byte[] cipherDate)
     {
-        // var csp = new DSACryptoServiceProvider();
-        var csp = new DSAPrivateKeyCrypto(PubKey);
-        // csp.ImportParameters(PrivKey);
+        var csp = new DSACryptoServiceProvider();
+        // var csp = new DSAPrivateKeyCrypto(PubKey);
+        csp.ImportParameters(PrivKey);
 
         var plainData = csp.Decrypt(cipherDate);
         return plainData;

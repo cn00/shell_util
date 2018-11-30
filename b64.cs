@@ -67,12 +67,12 @@ public class Base64
 }
 
 //Console.WriteLine("[{0}] => [{1}]",Args[0], Base64.Encode(Args[0].ToString()))
-//Console.WriteLine("{0}", Base64.Encode(Args[0].ToString()))
-foreach(var l in System.IO.File.ReadAllLines(Args[0]))
-{
-    var r = l.Split('|');
-    var id = r[0];
-    var s = r[1];
-    Console.WriteLine("{0},\"{1}\"",id, Base64.Encode(s.Replace("\\n", "\n")));
-}
+Console.WriteLine("{0}", Base64.Encode(Args[0].ToString()))
+// foreach(var l in System.IO.File.ReadAllLines(Args[0]))
+// {
+//     var r = l.Split('|');
+//     var id = r[0];
+//     var s = r[1];
+//     Console.WriteLine("{0},\"{1}\"",id, Base64.Encode(s.Replace("\\n", "\n")));
+// }
 
